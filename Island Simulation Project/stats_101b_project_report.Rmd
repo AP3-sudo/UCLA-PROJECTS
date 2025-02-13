@@ -1,0 +1,349 @@
+---
+title: |
+  | Boost or Bust:
+  | The Effects of Various Injections on Running Performance
+
+author: "By Albert Putranegoro, Carrie Su, Jacob Titcomb, & James Griffith"
+date: |
+  | STATS 101B, Lecture 3
+  | Spring 2024
+output:
+  pdf_document:
+    toc: TRUE
+    toc_depth: 2
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+library(tidyverse)
+library(lmtest)
+library(knitr)
+library(ggfortify)
+library(ggExtra)
+library(RColorBrewer)
+library(patchwork)
+
+opts_chunk$set(out.width="80%", fig.align = "center", results="hold",
+               echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r Source, echo=FALSE, warning=FALSE, message=FALSE}
+source("stats_101b_project_source.R")
+```
+
+\pagebreak
+
+# Abstract
+
+Running has continued to ramp up in the United States, with major sporting events and a greater prioritization of personal health and wellness drawing more and more individuals to this equipment-free activity. Looking primarily towards runners focused on speed, injections have consistently been a controversial topic, with numerous athletes receiving public consequences for wrongful injections of performance-enhancing drugs. Our team was curious about exploring the effects of seemingly more natural injections on the running performance of individuals. By measuring the speed that subjects take to run the outdoor 100 meter dash, we sought to study if, of the injections selected, any showed significant differences to running times. Moreover, we were interested in studying the effects hormonal versus non-hormonal treatments on running times. Our study focused on the effects of five primary treatments---adrenaline, hypertonic saline solution, serotonin, glucose, and natural insulin---and utilized five $5\times 5$ Latin Squares as the experimental design. In constructing AOV models, ANOVA tables, and Tukey HSD analyses, we found significantly different effects of injections on running times. While most injection effects were significantly different from each other, they could not generally be grouped as hormonal effects being different from non-hormonal effects.
+
+
+# Introduction
+
+Running has continued to capture the hearts of health-centered, active individuals, with around 50 million Americans stating that they participate in some form of jogging or running (*Statista Research Department*, 2024). A significant part of running culture is rooted in races—competitions pitting athletes, celebrities, or everyday citizens in a challenge for speed. The high-pressure placed on athletes to perform successfully has driven many to secretly consume performance-enhancing substances, with hopes of evading regulators’ monitoring for a higher chance of victory. Interested in the effect of medical injections on speed, our study seeks to explore the effects of five natural substances on running performance.
+
+All participants in this study participated in an indoor 100 meter race, an event that typically requires an explosive burst of energy and lasts less than 1 minute. In considering the duration of our study, an initial understanding of each substance and their effects was gained prior to design and execution, which we will discuss here.
+
+First, adrenaline is a hormone that triggers the body's fight or flight response, causing an increase in heart rate, respiratory rate, and blood flow towards the brain and heart (Gashi et al., 2020). According to Matthews et al., 1990, adrenaline starts taking effect within 2 minutes and is fully processed by the body after 18 hours.
+
+The second substance of interest is hypertonic saline solution, with effects of relieving intracranial pressure, increasing sodium concentration in the blood, and increases of fluid build up and pressure in the muscles (Mason et al., 2017). Mason et al. also note that it takes 15 minutes for the effect to fully develop, and lasts up to 6 hours in the body.
+
+Serotonin is the third substance sought to be studied, with consequences of sedation, diminished motor activity, and decreases in blood pressure and heart rate (Osterholm et al., 1969, Itoh & Buñag, 1991). Lasting around 30 minutes in total, effects of serotonin begin to manifest within 2 minutes (Ernberg et al., 2000).
+
+Our fourth treatment is glucose, which results in an "increase in resting oxygen consumption" (Le Feuvre et al., 1991) and provides water for intracellular hydration (Hahn, 2016). According to *Doctors Without Borders*, the effect of glucose is fully present within 15 minutes, and, according to Hahn, stays in the body for around 2.5 hours.
+
+Our last substance of interest is insulin. It has many effects on the human body, such as a reduction in glucose uptake, wound healing, bodybuilding, and organ preservation (Sonksen & Sonksen, 2000, Niazi & Niazi, 2012, Benni & Patil, 2016). From *Cleveland Clinic*, the average time for the effects to develop is 5 to 20 minutes, lasting up to 8 hours.
+
+Overall, our study intends to investigate if any of the five injections have a significant effect on running performance. Further data analysis is also to be conducted, specifically looking at the differences in effects across substances and considering whether hormonal or non-hormonal injections produce different effects on running performance.
+
+# Methods and Procedures
+
+## Participants
+
+Our participants were the islanders. Since there is a large variability in running ability based on both sex and age group, we decided to hold both those factors constant, only selecting women between the ages 20 and 40. Since our experimental design was a $5\times 5$ Latin square repeated 5 times, we took a sample of 25 islanders. Islanders were chosen arbitrarily (but not randomly) by the group members who performed the trials, and their names, age, and location were recorded along with trial results.
+
+## Design
+
+We have 5 treatments we tested, and accounting for the high variability in running ability, we wanted to block by treatment order and individual runner. Therefore, we constructed a $5\times 5$ Latin square to account for the two blocking factors. We randomized the rows---representing treatments---and columns---representing subjects---of the Latin square using R (see appendix). The randomized scheme is seen below:
+
+$$
+\begin{array}{|c|c|c|c|c|}
+\hline
+A & B & C & D & E  \\
+\hline
+E & A & B & C & D  \\
+\hline
+D & E & A & B & C  \\
+\hline
+C & D & E & A & B  \\
+\hline
+B & C & D & E & A  \\
+\hline
+\end{array}
+\phantom{-}\longrightarrow\phantom{-}
+\begin{array}{|c|c|c|c|c|}
+\hline
+E & A & B & C & D  \\
+\hline
+B & C & D & E & A  \\
+\hline
+D & E & A & B & C  \\
+\hline
+C & D & E & A & B  \\
+\hline
+A & B & C & D & E  \\
+\hline
+\end{array}\phantom{-}\longrightarrow\phantom{-}
+\begin{array}{|c|c|c|c|c|}
+\hline
+D & A & E & B & C  \\
+\hline
+A & C & B & D & E   \\
+\hline
+C & E & D & A & B  \\
+\hline
+B & D & C & E & A  \\
+\hline
+E & B & A & C & D  \\
+\hline
+\end{array}
+$$
+
+## Material and Procedure
+
+The treatments were as follows, with the corresponding Latin square label:
+
+* Adrenaline, $10\mu g$ (A)
+* Hypertonic saline solution, $3mL$ (B)
+* Serotonin, $10\mu g$ (C)
+* Glucose $10\%$ (D)
+* Natural insulin, 1 unit (E)
+
+For our measurement, we had the participant run a 100 meter dash, and we recorded the time they took, in seconds.
+
+Based on our research, each of the treatments would have been fully active in the body within 15 minutes after injection, and after around 20 hours the treatment would have passed fully through the body. Therefore we set up the procedure in the following way:
+
+1. Find willing participants on the island who fit within the target demographic (female, age between 20 and 40).
+2. Assign each participant sequentially to the assignments of the randomized Latin square, filling out 5 Latin squares with 25 people in total.
+3. Record the initial 100 meter dash running time for the subject into Excel. Then inject the treatment.
+4. Wait 15 minutes for the treatment to take effect, then have the subject run the 100 meters again, recording the time into Excel.
+5. After 24 hours, repeat steps 3 and 4 with the next batch of treatments until all treatment have been administered.
+6. Import the data into R for analysis.
+
+\pagebreak
+
+## Instruments
+
+We selected the treatments and dosage from the available injections that could be given to the islanders. All treatments were given via injection. The running time of the 100 meter dash is assumed to be done with a stop watch or a similar time recording device. The data was recorded into Excel, and the final analysis was done using R, with base R, tidyverse packages, lmtest, and ggfortify.
+
+## Data Analysis
+
+The effects we measured came from the difference between the pre- and post-injection running times. For our analysis, we constructed 6 analysis of variance (AOV) models: one for each Latin square and one with the combined data. For each model, we included factors for both the treatment order and subject.
+
+Diagnostic plots were generated for each model so we could verify the model assumptions. To further verify the homoskedasticity assumption, Breusch-Pagan tests were conducted for each model (see results in appendix). ANOVA tables and a post-hoc Tukey HSD plot helped us identify whether treatment effects were significant, and which combinations in particular had significant differences.
+
+\pagebreak
+
+# Results
+
+## Model Diagnostic Plots for Validity
+
+While the diagnostic plots for the individual Latin square models supported the validity of the assumptions, below is the model using the combined data. We show this set of diagnostic plots in particular because this model gives the most complete view of the data and is the model we use for most of our analysis (see appendix for the rest of the diagnostic plots).
+\
+
+```{r}
+diagnostics.all
+```
+
+
+## ANOVA Tables
+
+```{r}
+anova.ls1
+anova.ls2
+anova.ls3
+anova.ls4
+anova.ls5
+anova.all
+```
+
+\pagebreak
+
+## Latin Square Box Plots
+
+For the box plots below, the dashed red lines indicate the grand mean, and the red dot is the treatment mean.
+\
+
+```{r}
+(plot_LS(LS1, 1) + plot_LS(LS2, 2)) / (plot_LS(LS3, 3) + plot_LS(LS4, 4))
+(plot_LS(LS5, 5) + plot_LS(LS_all, full.data = TRUE)) / (plot_spacer() + plot_spacer())
+```
+
+
+## Table of Effects
+
+```{r}
+effects.print
+```
+
+\pagebreak
+
+## $R^2$ for Each Model
+
+```{r}
+r2.print
+```
+
+
+## Post-Hoc Analysis Using Tukey HSD
+
+See the appendix for the full Tukey HSD ranges and $p$-values.
+\
+
+```{r}
+tukey.plot
+```
+
+
+\pagebreak
+
+# Conclusion
+
+## Discussion
+
+The goal of this project was to determine differences in effects of injections on running performance. Utilizing AOV models, ANOVA tables, and a Tukey HSD analysis, we attempted to study the differences in running times for a 100 meter dash. Our design for the experiment was five $5\times 5$ Latin squares, requiring a sample of 25 people. For each Latin square, we constructed an AOV model, as well as for the full data set.
+
+The first set of plots in our results was the diagnostic plots for the AOV model on the full data. The residual plot showed no systematic pattern, the normal Q-Q plot showed fairly strong adherence to the line indicating normality, and the scale-location plot was almost flat. Thus the residuals exhibited constant variance and were approximately normal, showing the assumptions were valid for this model. We reached the same conclusions for the individual Latin square models (see appendix for details). Since the assumptions were true for all the models, we opted to use the model of the full data for the overall analysis.
+
+After confirming the validity of our models, the next section of the results contained each model's ANOVA table. In all models except for Latin square 4, the treatment effect was significant with a $p$-value less than 0.05. Though we are not studying the blocking factors, it is worth noting that the blocking factors are only significant in the combined model. The results of these ANOVA tables lead us to conclude that the injections effects differed significantly with regard to running performance for all models except for Latin square 4.
+
+Continuing with the analysis, the next set of plots was the box plots for each model. Visually, the plots generally agreed with the ANOVA tables. For the individual Latin squares, the only model where the range for each treatment included the grand mean was Latin square 4, all others have at least one treatment which did not overlap with the grand mean, showing potential significance. In the combined model, 2 interquartile ranges did not overlap with the grand mean, which could be indicative of significance. Throughout the box plots, two pairs of treatments tended to consistently show similar effects: glucose and adrenaline tend to lower running times by a similar amount, while serotonin and saline tend to similarly increase running times. Notable within these pairings is that they are hormonal treatments (adrenaline and serotonin) paired with non-hormonal treatments (glucose and saline). This trend points towards hormonal and non-hormonal treatments not having significant differences between the two groups, which we returned to later.
+
+When looking at the treatment effects themselves, some commonalities surfaced. In general, we observed each treatment consistently had either a positive or negative effect; only saline showed a deviation from that trend, having a negative effect in Latin square 3. Also included in the results were the $R^2$ values. The full model had the lowest at 0.53, while the Latin squares had $R^2$ around 0.6 and 0.7.
+
+Our last plot was a visualization of a Tukey HSD analysis on the full model. We found that four pairings were not significant: serotonin and saline ($p\approx 1$), serotonin and insulin ($p=0.999$), saline and insulin ($p=0.998$), and glucose and adrenaline ($p=0.580$). The rest of the pairings had significant differences: serotonin and glucose ($p=0.003$), serotonin and adrenaline ($p\approx 0$), saline and glucose ($p=0.004$), saline and adrenaline ($p\approx 0$), insulin and glucose ($p=0.001$), and insulin and adrenaline ($p\approx 0$). While the ANOVA tables confirmed the existence of significantly different effects on running performance, the Tukey HSD analysis indicated that hormonal injections did not consistently produce different effects from non-hormonal injections.
+
+## Limitations & Future Work
+
+The primary issue in this study was timing: from the literature review, each treatment had a different time for the effect to be expressed, and for the treatment to pass through the subject's system entirely. While the latter issue was addressed in a simple manner---waiting 24 hours before the next testing batch---we addressed the former issue by holding the second running trial 15 minutes after injection. Since each treatment has an "activation" time of 15 minutes or less, this was a straightforward method, but some effects could have started to decline by that time. Yet, waiting for a time less than 15 minutes (especially a time tailored to each treatment) could lead to the subject still being tired from the pre-injection run, artificially increasing the post-injection running time. Another limitation to the experiment was being able to control the running environment of the subjects. There is possible variation in running environment due to geographic differences between towns and the islands as a whole. Since the running task was an *outdoor* 100 meter dash, one's running speed might be affected by the terrain, resulting in effects that are geographically-dependent.
+
+Future work in this area might attempt to address the above concerns, try other simple hormonal and non-hormonal injections, or choose a longer, more endurance-based running test. Performing these changes in a future experiment would increase our understanding of medical injections and running, and increase the applicability of the results.
+
+
+\pagebreak
+
+# Bibliography
+
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent
+
+Benni, Jyoti M., and Paragouda A. Patil. “Non-Diabetic Clinical Applications of Insulin.” Journal of Basic and Clinical Physiology and Pharmacology 27, no. 5 (May 28, 2016): 445–56. https://doi.org/10.1515/jbcpp-2015-0101.
+
+Cleveland Clinic. “What Is Insulin?” Cleveland Clinic. Accessed May 27, 2024. https://my.clevelandclinic.org/health/body/22601-insulin.
+
+Doctors Without Borders. “Glucose 10% = Dextrose 10%.” MSF Medical Guidelines. Accessed May 27, 2024. https://medicalguidelines.msf.org/en/viewport/EssDr/english/glucose-10-dextrose-10-16688182.html.
+
+Ernberg, Malin, Thomas Lundeberg, and Sigvard Kopp. “Pain and Allodynia/Hyperalgesia Induced by Intramuscular Injection of Serotonin in Patients with Fibromyalgia and Healthy Individuals.” Pain 85, no. 1 (March 1, 2000): 31–39. https://doi.org/10.1016/s0304-3959(99)00233-x.
+
+Gashi, Arbnore Ibrahimaj, Seryozha Gontarev, Vujica Zivkovic, Icko Gjorgovski, and Arjeta Azemi. “The Effect of Aerobic Physical Activity in Adrenaline Level in White Laboratory Rats.” Medical archives (Sarajevo, Bosnia and Herzegovina), April 2020. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7296409/.
+
+Hahn, Robert G. “How Fast Can Glucose Be Infused in the Perioperative Setting?” Perioperative Medicine 5, no. 1 (January 11, 2016). https://doi.org/10.1186/s13741-015-0027-7.
+
+Itoh, H., and R. D. Buñag. “Cardiovascular and Sympathetic Effects of Injecting Serotonin into the Nucleus Tractus Solitarius in Rats.” Journal of Pharmacology and Experimental Therapeutics, March 1, 1991. https://jpet.aspetjournals.org/content/256/3/1147.
+
+Le Feuvre, R.A., A.J. Woods, M.J. Stock, and N.J. Rothwell. “Effects of Central Injection of Glucose on Thermogenesis in Normal, VMH-Lesioned and Genetically Obese Rats.” Brain Research 547, no. 1 (April 1991): 109–15. https://doi.org/10.1016/0006-8993(91)90580-o.
+
+Mason, Alexi, Ahmad Malik, and Jacob G. Ginglen. “Hypertonic Fluids.” National Center for Biotechnology Information, April 17, 2017. https://pubmed.ncbi.nlm.nih.gov/31194351/.
+
+Matthews, D. E., G. Pesola, and R. G. Campbell. “Effect of Epinephrine on Amino Acid and Energy Metabolism in Humans.” American Journal of Physiology-Endocrinology and Metabolism 258, no. 6 (June 1, 1990). https://doi.org/10.1152/ajpendo.1990.258.6.e948.
+
+Mekonnen, Mahlet, Vera Ong, Timothy J. Florence, Khashayar Mozaffari, Natalie Mahgerefteh, Shivam Rana, Courtney Duong, David S. Plurad, and Isaac Yang. “Hypertonic Saline Treatment in Traumatic Brain Injury: A Systematic Review.” World Neurosurgery 162 (June 2022): 98–110. https://doi.org/10.1016/j.wneu.2022.03.056.
+
+Niazi, Asfandyar Khan, and Shaharyar Khan Niazi. “A Grand Dame with Hidden Aces: The Non-Diabetic Uses of Insulin.” Indian Journal of Endocrinology and Metabolism 16, no. 7 (2012): 57. https://doi.org/10.4103/2230-8210.94260.
+
+Osterholm, Jewell L., Jeffrey Bell, Richard Meyer, and Jack Pyenson. “Experimental Effects of Free Serotonin on the Brain and Its Relation to Brain Injury.” Journal of Neurosurgery 31, no. 4 (October 1969): 408–21. https://doi.org/10.3171/jns.1969.31.4.0408.
+
+Sonksen, P., and J. Sonksen. “Insulin: Understanding Its Action in Health and Disease.” British Journal of Anaesthesia 85, no. 1 (July 2000): 69–79. https://doi.org/10.1093/bja/85.1.69.
+
+Statista Research Department. "Topic: Running & Jogging." Statista, January 10, 2024. https://www.statista.com/topics/1743/running-and-jogging/.
+
+
+\pagebreak
+
+# Appendix
+
+## Code Used for Latin Square Randomization
+
+```{r, echo=TRUE, results="hold"}
+set.seed(90095)
+row <- sample(1:5, replace = FALSE)
+col <- sample(1:5, replace = FALSE)
+cat("Row order:   ", row, "\nColumn order:", col)
+```
+\
+
+
+## Diagnostic Plots for All Latin Square Models
+
+For each of the following diagnostic plots, the residuals appear to be approximately normal (from the normal QQ plot) with constant variance (from the relatively flat scale-location plot) and no pattern to the residuals (from the residual plot).
+
+### Latin Square 1
+
+```{r}
+diagnostics.ls1
+```
+
+### Latin Square 2
+
+```{r}
+diagnostics.ls2
+```
+
+### Latin Square 3
+
+```{r}
+diagnostics.ls3
+```
+
+### Latin Square 4
+
+```{r}
+diagnostics.ls4
+```
+
+### Latin Square 5
+
+```{r}
+diagnostics.ls5
+```
+
+
+\pagebreak
+
+## Breusch-Pagan Test Results
+
+With each $p$-value greater than 0.05, we fail to reject the null of homoskedasticity.
+
+```{r}
+bp.p_vals.print
+```
+
+## Full Tukey HSD Results
+
+The following table can be generalized by the Tukey HSD plot in the Results section.
+
+```{r}
+tukey.print
+```
+
+
+
+
+
+
+
+
+
+
